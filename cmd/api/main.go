@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Bakhram74/effective-mobile-test-work.git/config"
+	"github.com/Bakhram74/effective-mobile-test-work.git/pkg/httpServer"
 )
 
 func main() {
@@ -11,5 +12,9 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(cfg.DBSource)
+	server := httpServer.NewServer(&cfg, nil)
+	if err := server.Run(); err != nil {
+		panic(err)
+	}
+
 }
