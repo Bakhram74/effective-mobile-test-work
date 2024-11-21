@@ -13,18 +13,18 @@ const createSongs = `-- name: CreateSongs :one
 INSERT INTO songs (
 "group",
 "name",
-"releaseDate",
+"release_date",
 "text",
 "link"
 ) VALUES (
  $1,$2,$3,$4,$5
-) RETURNING id, "group", name, "releaseDate", text, link
+) RETURNING id, "group", name, release_date, text, link
 `
 
 type CreateSongsParams struct {
 	Group       string `json:"group"`
 	Name        string `json:"name"`
-	ReleaseDate string `json:"releaseDate"`
+	ReleaseDate string `json:"release_date"`
 	Text        string `json:"text"`
 	Link        string `json:"link"`
 }

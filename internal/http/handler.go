@@ -1,21 +1,21 @@
 package http
 
 import (
-	"net/http"
-
 	"github.com/Bakhram74/effective-mobile-test-work.git/config"
+	"github.com/Bakhram74/effective-mobile-test-work.git/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	config *config.Config
+	config  *config.Config
+	service service.Service
 }
 
-func NewHandler(config *config.Config) *Handler {
+func NewHandler(config *config.Config, service service.Service) *Handler {
 
 	return &Handler{
-
-		config: config,
+		service: service,
+		config:  config,
 	}
 
 }
@@ -32,13 +32,12 @@ func (h *Handler) Init() *gin.Engine {
 }
 
 func (h *Handler) initAPI(router *gin.Engine) {
-
+	song := router.Group("/song")
 	{
-		router.GET("/status", h.getStatus)
+		song.POST("/create", h.createSong)
 	}
 }
 
-func (h *Handler) getStatus(ctx *gin.Context) {
-
-	ctx.JSON(http.StatusOK, "ok")
+func ErrorResponse(c *gin.Context, code int, msg string) {
+	c.AbortWithStatusJSON(code, msg)
 }

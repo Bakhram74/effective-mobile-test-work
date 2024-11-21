@@ -12,7 +12,7 @@ type Song struct {
 	ID          uuid.UUID `json:"id"`
 	Group       string    `json:"group"`
 	Name        string    `json:"name"`
-	ReleaseDate string    `json:"releaseDate"`
+	ReleaseDate string    `json:"release_date"`
 	Text        string    `json:"text"`
 	Link        string    `json:"link"`
 }

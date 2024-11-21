@@ -2,7 +2,7 @@
 INSERT INTO songs (
 "group",
 "name",
-"releaseDate",
+"release_date",
 "text",
 "link"
 ) VALUES (
