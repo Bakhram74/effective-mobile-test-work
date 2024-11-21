@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -54,8 +55,7 @@ func (s *Server) Run() error {
 		return err
 	}
 
-	fmt.Println("stopped server", map[string]string{
-		"addr": s.httpServer.Addr})
+	slog.Info("stopped server", slog.String("addr", s.httpServer.Addr))
 
 	return nil
 }
