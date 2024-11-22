@@ -51,6 +51,16 @@ func (q *Queries) CreateSong(ctx context.Context, arg CreateSongParams) (Song, e
 	return i, err
 }
 
+const deleteSong = `-- name: DeleteSong :exec
+DELETE FROM songs
+WHERE id = $1
+`
+
+func (q *Queries) DeleteSong(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteSong, id)
+	return err
+}
+
 const getSong = `-- name: GetSong :one
 SELECT id, "group", name, release_date, text, link FROM songs
 WHERE id = $1

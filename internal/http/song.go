@@ -123,3 +123,31 @@ func (h *Handler) updateSong(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, song)
 }
+
+type songDeleteReq struct {
+	ID string `json:"id" binding:"required"`
+}
+
+func (h *Handler) deleteSong(ctx *gin.Context) {
+	var reqBody songDeleteReq
+	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
+		ErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+	id, err := uuid.Parse(reqBody.ID)
+	if err != nil {
+		ErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+
+	err = h.service.Song.Delete(ctx, id)
+	if err != nil {
+		ErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, "ok")
+}

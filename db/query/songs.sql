@@ -13,6 +13,12 @@ INSERT INTO songs (
 SELECT * FROM songs
 WHERE id = $1;
 
+-- name: DeleteSong :exec
+DELETE FROM songs
+WHERE id = $1;
+
+
+
 -- name: UpdateSong :one
 UPDATE songs
 SET

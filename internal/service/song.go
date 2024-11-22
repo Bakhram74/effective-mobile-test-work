@@ -29,3 +29,7 @@ func (s SongService) Get(ctx context.Context, id uuid.UUID) (db.Song, error) {
 func (s SongService) Update(ctx context.Context, params db.UpdateSongParams) (db.Song, error) {
 	return s.queries.UpdateSong(ctx, params)
 }
+
+func (s SongService) Delete(ctx context.Context, id uuid.UUID) error {
+	return s.queries.DeleteSong(ctx, id)
+}
