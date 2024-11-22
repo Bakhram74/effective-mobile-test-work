@@ -6,10 +6,14 @@ package db
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
-	CreateSongs(ctx context.Context, arg CreateSongsParams) (Song, error)
+	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
+	GetSong(ctx context.Context, id uuid.UUID) (Song, error)
+	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
 }
 
 var _ Querier = (*Queries)(nil)
