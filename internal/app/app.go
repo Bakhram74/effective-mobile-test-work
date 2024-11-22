@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/Bakhram74/effective-mobile-test-work.git/config"
@@ -18,10 +19,17 @@ func Run(config *config.Config) {
 		panic(err)
 	}
 	defer pool.Close()
-	queries:=db.New(pool)
+
+	err = RunMigration(config)
+	if err != nil {
+		panic(fmt.Sprintf("Migration error: %s", err.Error()))
+	}
+
+	queries := db.New(pool)
+
 	service := service.NewService(queries)
 
-	handler := http.NewHandler(config,service).Init()
+	handler := http.NewHandler(config, service).Init()
 
 	slog.Info("Runnig app server at", slog.String("addr", config.HTTPServerAddress))
 	srv := httpServer.NewServer(config, handler)
