@@ -11,6 +11,30 @@ import (
 	"github.com/google/uuid"
 )
 
+const countSongVerses = `-- name: CountSongVerses :one
+SELECT 
+  COUNT(*) AS verse_count
+FROM (
+  SELECT 
+    unnest(string_to_array("text", E'\n')) AS verse
+  FROM songs
+  WHERE "group" = $1 AND "name" = $2
+) AS verses
+WHERE verse <> ''
+`
+
+type CountSongVersesParams struct {
+	Group string `json:"group"`
+	Name  string `json:"name"`
+}
+
+func (q *Queries) CountSongVerses(ctx context.Context, arg CountSongVersesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countSongVerses, arg.Group, arg.Name)
+	var verse_count int64
+	err := row.Scan(&verse_count)
+	return verse_count, err
+}
+
 const createSong = `-- name: CreateSong :one
 INSERT INTO songs (
 "group",
@@ -78,6 +102,58 @@ func (q *Queries) GetSong(ctx context.Context, id uuid.UUID) (Song, error) {
 		&i.Link,
 	)
 	return i, err
+}
+
+const paginatedSongVerses = `-- name: PaginatedSongVerses :many
+SELECT 
+  verses."name",
+  verses.verse
+FROM (
+  SELECT 
+    songs."name",
+    unnest(string_to_array(songs."text", E'\n')) AS verse
+  FROM songs
+  WHERE songs."group" = $1 AND songs."name" = $2
+) AS verses
+WHERE verses.verse <> '' -- Filter out empty lines
+LIMIT $3 OFFSET $4
+`
+
+type PaginatedSongVersesParams struct {
+	Group  string `json:"group"`
+	Name   string `json:"name"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+type PaginatedSongVersesRow struct {
+	Name  string      `json:"name"`
+	Verse interface{} `json:"verse"`
+}
+
+func (q *Queries) PaginatedSongVerses(ctx context.Context, arg PaginatedSongVersesParams) ([]PaginatedSongVersesRow, error) {
+	rows, err := q.db.Query(ctx, paginatedSongVerses,
+		arg.Group,
+		arg.Name,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PaginatedSongVersesRow
+	for rows.Next() {
+		var i PaginatedSongVersesRow
+		if err := rows.Scan(&i.Name, &i.Verse); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateSong = `-- name: UpdateSong :one

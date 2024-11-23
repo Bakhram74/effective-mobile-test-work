@@ -12,6 +12,7 @@ type Song interface {
 	Update(ctx context.Context, params db.UpdateSongParams) (db.Song, error)
 	Get(ctx context.Context, id uuid.UUID) (db.Song, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	PaginateSongVerses(ctx context.Context, params db.PaginatedSongVersesParams) (int64, []db.PaginatedSongVersesRow, error)
 }
 
 type Service struct {

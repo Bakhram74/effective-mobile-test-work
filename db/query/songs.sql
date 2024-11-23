@@ -17,8 +17,6 @@ WHERE id = $1;
 DELETE FROM songs
 WHERE id = $1;
 
-
-
 -- name: UpdateSong :one
 UPDATE songs
 SET
@@ -29,3 +27,28 @@ SET
   link = COALESCE($5, link)
 WHERE id = $6
 RETURNING *;
+
+-- name: PaginatedSongVerses :many
+SELECT 
+  verses."name",
+  verses.verse
+FROM (
+  SELECT 
+    songs."name",
+    unnest(string_to_array(songs."text", E'\n')) AS verse
+  FROM songs
+  WHERE songs."group" = $1 AND songs."name" = $2
+) AS verses
+WHERE verses.verse <> '' -- Filter out empty lines
+LIMIT $3 OFFSET $4;
+
+-- name: CountSongVerses :one
+SELECT 
+  COUNT(*) AS verse_count
+FROM (
+  SELECT 
+    unnest(string_to_array("text", E'\n')) AS verse
+  FROM songs
+  WHERE "group" = $1 AND "name" = $2
+) AS verses
+WHERE verse <> '';

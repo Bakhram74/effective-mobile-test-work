@@ -11,9 +11,11 @@ import (
 )
 
 type Querier interface {
+	CountSongVerses(ctx context.Context, arg CountSongVersesParams) (int64, error)
 	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
 	DeleteSong(ctx context.Context, id uuid.UUID) error
 	GetSong(ctx context.Context, id uuid.UUID) (Song, error)
+	PaginatedSongVerses(ctx context.Context, arg PaginatedSongVersesParams) ([]PaginatedSongVersesRow, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
 }
 

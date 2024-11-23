@@ -5,8 +5,10 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	db "github.com/Bakhram74/effective-mobile-test-work.git/db/sqlc"
+	"github.com/Bakhram74/effective-mobile-test-work.git/internal/service/entity"
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -150,4 +152,82 @@ func (h *Handler) deleteSong(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, "ok")
+}
+
+type paginateSongVersesReq struct {
+	Group string `json:"group" binding:"required"`
+	Name  string `json:"name" binding:"required"`
+}
+
+func (h *Handler) paginateSongVerses(ctx *gin.Context) {
+
+	var reqBody paginateSongVersesReq
+	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
+		ErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil {
+		ErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+	limit, err := strconv.Atoi(ctx.Query("limit"))
+	if err != nil {
+		ErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+	if page <= 0 {
+		page = 1
+	}
+	if limit <= 0 {
+		limit = 5
+	}
+
+	offset := limit * (page - 1)
+
+	args := db.PaginatedSongVersesParams{
+		Group:  reqBody.Group,
+		Name:   reqBody.Name,
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	}
+
+	count, rows, err := h.service.PaginateSongVerses(ctx, args)
+	if err != nil {
+		ErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		slog.Error(err.Error())
+	}
+
+	var verses []string
+	for _, item := range rows {
+		str, ok := item.Verse.(string)
+		if !ok {
+			ErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+			slog.Error(err.Error())
+			return
+		}
+		verses = append(verses, str)
+	}
+
+	totalVerses := (int(count) / limit)
+	remainder := (int(count) % limit)
+	if remainder != 0 {
+		totalVerses = totalVerses + 1
+	}
+
+	response := entity.VerseResponse{
+		Group: reqBody.Group,
+		Name:  reqBody.Name,
+		Verse: verses,
+		Pagination: entity.Pagination{
+			Page:      page,
+			Limit:     limit,
+			TotalPage: totalVerses,
+		},
+	}
+	ctx.JSON(http.StatusOK, response)
 }
