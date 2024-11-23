@@ -15,7 +15,7 @@ type Querier interface {
 	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
 	DeleteSong(ctx context.Context, id uuid.UUID) error
 	GetSong(ctx context.Context, id uuid.UUID) (Song, error)
-	PaginatedSongVerses(ctx context.Context, arg PaginatedSongVersesParams) ([]PaginatedSongVersesRow, error)
+	SongVerses(ctx context.Context, arg SongVersesParams) ([]SongVersesRow, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
 }
 

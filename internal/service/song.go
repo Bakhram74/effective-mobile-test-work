@@ -34,7 +34,7 @@ func (s SongService) Delete(ctx context.Context, id uuid.UUID) error {
 	return s.queries.DeleteSong(ctx, id)
 }
 
-func (s SongService) PaginateSongVerses(ctx context.Context, params db.PaginatedSongVersesParams) (int64, []db.PaginatedSongVersesRow, error) {
+func (s SongService) SongVerses(ctx context.Context, params db.SongVersesParams) (int64, []db.SongVersesRow, error) {
 	args := db.CountSongVersesParams{
 		Group: params.Group,
 		Name:  params.Name,
@@ -42,12 +42,12 @@ func (s SongService) PaginateSongVerses(ctx context.Context, params db.Paginated
 
 	count, err := s.queries.CountSongVerses(ctx, args)
 	if err != nil {
-		return 0, []db.PaginatedSongVersesRow{}, err
+		return 0, []db.SongVersesRow{}, err
 	}
 
-	rows, err := s.queries.PaginatedSongVerses(ctx, params)
+	rows, err := s.queries.SongVerses(ctx, params)
 	if err != nil {
-		return 0, []db.PaginatedSongVersesRow{}, err
+		return 0, []db.SongVersesRow{}, err
 	}
 
 	return count, rows, nil

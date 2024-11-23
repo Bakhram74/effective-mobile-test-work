@@ -104,7 +104,7 @@ func (q *Queries) GetSong(ctx context.Context, id uuid.UUID) (Song, error) {
 	return i, err
 }
 
-const paginatedSongVerses = `-- name: PaginatedSongVerses :many
+const songVerses = `-- name: SongVerses :many
 SELECT 
   verses."name",
   verses.verse
@@ -119,20 +119,20 @@ WHERE verses.verse <> '' -- Filter out empty lines
 LIMIT $3 OFFSET $4
 `
 
-type PaginatedSongVersesParams struct {
+type SongVersesParams struct {
 	Group  string `json:"group"`
 	Name   string `json:"name"`
 	Limit  int32  `json:"limit"`
 	Offset int32  `json:"offset"`
 }
 
-type PaginatedSongVersesRow struct {
+type SongVersesRow struct {
 	Name  string      `json:"name"`
 	Verse interface{} `json:"verse"`
 }
 
-func (q *Queries) PaginatedSongVerses(ctx context.Context, arg PaginatedSongVersesParams) ([]PaginatedSongVersesRow, error) {
-	rows, err := q.db.Query(ctx, paginatedSongVerses,
+func (q *Queries) SongVerses(ctx context.Context, arg SongVersesParams) ([]SongVersesRow, error) {
+	rows, err := q.db.Query(ctx, songVerses,
 		arg.Group,
 		arg.Name,
 		arg.Limit,
@@ -142,9 +142,9 @@ func (q *Queries) PaginatedSongVerses(ctx context.Context, arg PaginatedSongVers
 		return nil, err
 	}
 	defer rows.Close()
-	var items []PaginatedSongVersesRow
+	var items []SongVersesRow
 	for rows.Next() {
-		var i PaginatedSongVersesRow
+		var i SongVersesRow
 		if err := rows.Scan(&i.Name, &i.Verse); err != nil {
 			return nil, err
 		}

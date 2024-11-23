@@ -28,7 +28,7 @@ SET
 WHERE id = $6
 RETURNING *;
 
--- name: PaginatedSongVerses :many
+-- name: SongVerses :many
 SELECT 
   verses."name",
   verses.verse

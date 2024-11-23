@@ -159,7 +159,7 @@ type paginateSongVersesReq struct {
 	Name  string `json:"name" binding:"required"`
 }
 
-func (h *Handler) paginateSongVerses(ctx *gin.Context) {
+func (h *Handler) paginatedVerses(ctx *gin.Context) {
 
 	var reqBody paginateSongVersesReq
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
@@ -189,14 +189,14 @@ func (h *Handler) paginateSongVerses(ctx *gin.Context) {
 
 	offset := limit * (page - 1)
 
-	args := db.PaginatedSongVersesParams{
+	args := db.SongVersesParams{
 		Group:  reqBody.Group,
 		Name:   reqBody.Name,
 		Limit:  int32(limit),
 		Offset: int32(offset),
 	}
 
-	count, rows, err := h.service.PaginateSongVerses(ctx, args)
+	count, rows, err := h.service.SongVerses(ctx, args)
 	if err != nil {
 		ErrorResponse(ctx, http.StatusInternalServerError, err.Error())
 		slog.Error(err.Error())
