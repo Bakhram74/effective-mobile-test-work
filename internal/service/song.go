@@ -22,6 +22,10 @@ func NewSongService(store db.Store) *SongService {
 	}
 }
 
+func (s SongService) GetAllSongs(ctx context.Context) ([]db.Song, error) {
+	return s.store.GetAllSong(ctx)
+}
+
 func (s SongService) Create(ctx context.Context, params db.CreateSongParams) (db.Song, error) {
 	return s.store.CreateSong(ctx, params)
 }

@@ -17,6 +17,25 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// @Summary Get all Songs
+// @Description Handler for Getting songs
+// @Tags song
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} []db.Song
+// @Failure      400,404,500  {func} ErrorResponse
+// @Router / [get]
+func (h *Handler) getSongs(ctx *gin.Context) {
+
+	songs, err := h.service.Song.GetAllSongs(ctx)
+	if err != nil {
+		ErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, songs)
+}
 
 type songCreateReq struct {
 	Group       string `json:"group" binding:"required"`

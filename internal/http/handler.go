@@ -38,6 +38,7 @@ func (h *Handler) Init() *gin.Engine {
 func (h *Handler) initAPI(router *gin.Engine) {
 	song := router.Group("/song")
 	{
+		song.GET("/", h.getSongs)
 		song.POST("/create", h.createSong)
 		song.PUT("/update", h.updateSong)
 		song.DELETE("/delete", h.deleteSong)
