@@ -17,6 +17,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+
 type songCreateReq struct {
 	Group       string `json:"group" binding:"required"`
 	Name        string `json:"name" binding:"required"`
@@ -25,6 +26,15 @@ type songCreateReq struct {
 	Link        string `json:"link" binding:"required"`
 }
 
+// @Summary Create Song
+// @Description Handler for Createting new song
+// @Tags song
+// @Accept  json
+// @Produce  json
+// @Param input body songCreateReq true "song fields"
+// @Success 200 {object} db.Song
+// @Failure      400,404,500  {func} ErrorResponse
+// @Router /create [post]
 func (h *Handler) createSong(ctx *gin.Context) {
 	var reqBody songCreateReq
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
@@ -60,6 +70,15 @@ type songUpdateReq struct {
 	Link        string `json:"link,omitempty"`
 }
 
+// @Summary Update Song
+// @Description Handler for Updating song by id
+// @Tags song
+// @Accept  json
+// @Produce  json
+// @Param input body songUpdateReq true "all feilds are optional exept id"
+// @Success 200 {object} db.Song
+// @Failure      400,404,500  {func} ErrorResponse
+// @Router /update [put]
 func (h *Handler) updateSong(ctx *gin.Context) {
 	var reqBody songUpdateReq
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
@@ -137,6 +156,15 @@ type songDeleteReq struct {
 	ID string `json:"id" binding:"required"`
 }
 
+// @Summary Delete Song
+// @Description Handler for Deleting song by id
+// @Tags song
+// @Accept  json
+// @Produce  json
+// @Param input body songDeleteReq true "song id"
+// @Success 200 {string} string "ok"
+// @Failure      400,404,500  {func} ErrorResponse
+// @Router /delete [delete]
 func (h *Handler) deleteSong(ctx *gin.Context) {
 	var reqBody songDeleteReq
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
@@ -166,6 +194,17 @@ type paginateSongVersesReq struct {
 	Name  string `json:"name" binding:"required"`
 }
 
+// @Summary Get paginated Song verses
+// @Description Handler for getting Song verses
+// @Tags song
+// @Accept  json
+// @Produce  json
+// @Param input body paginateSongVersesReq true "group, name"
+// @Param	page	query		string		true "page of verses"
+// @Param	limit	query		string		true "count of verses"
+// @Success 200 {object} entity.VerseResponse
+// @Failure      400,404,500  {func} ErrorResponse
+// @Router /verses [post]
 func (h *Handler) paginatedVerses(ctx *gin.Context) {
 
 	var reqBody paginateSongVersesReq
@@ -239,9 +278,25 @@ func (h *Handler) paginatedVerses(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Get filtered Song
+// @Description Handler for getting Song verses
+// @Tags song
+// @Accept  json
+// @Produce  json
+// @Param	sort	query		string		true "ATTENTION!!! use date Instead of release_date, default dir is asc"
+// @Param	dir	query		string		true "asc or desc"
+// @Param	page	query		string		true "page of songs"
+// @Param	limit	query		string		true "count of songs"
+// @Success 200 {object} entity.SongResponse
+// @Failure      400,404,500  {func} ErrorResponse
+// @Router /songs [get]
 func (h *Handler) filteredSongs(ctx *gin.Context) {
 	sortValue := ctx.Query("sort")
 	direction := ctx.Query("dir")
+
+	if direction != strings.ToLower("Desc") {
+		direction = "asc"
+	}
 
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil {

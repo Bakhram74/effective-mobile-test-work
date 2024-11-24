@@ -1,0 +1,304 @@
+basePath: /song
+definitions:
+  db.Song:
+    properties:
+      group:
+        type: string
+      id:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      release_date:
+        type: string
+      text:
+        type: string
+    type: object
+  entity.Pagination:
+    properties:
+      page:
+        type: integer
+      total_count:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  entity.SongResponse:
+    properties:
+      pagination:
+        $ref: '#/definitions/entity.Pagination'
+      songs:
+        items:
+          $ref: '#/definitions/db.Song'
+        type: array
+    type: object
+  entity.VerseResponse:
+    properties:
+      group:
+        type: string
+      name:
+        type: string
+      pagination:
+        $ref: '#/definitions/entity.Pagination'
+      verse:
+        items:
+          type: string
+        type: array
+    type: object
+  http.paginateSongVersesReq:
+    properties:
+      group:
+        type: string
+      name:
+        type: string
+    required:
+    - group
+    - name
+    type: object
+  http.songCreateReq:
+    properties:
+      group:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      release_date:
+        type: string
+      text:
+        type: string
+    required:
+    - group
+    - link
+    - name
+    - release_date
+    - text
+    type: object
+  http.songDeleteReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  http.songUpdateReq:
+    properties:
+      group:
+        type: string
+      id:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      release_date:
+        type: string
+      text:
+        type: string
+    required:
+    - id
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API docs for Effective-mobile-test-work.
+  title: Music info
+  version: 0.0.1
+paths:
+  /create:
+    post:
+      consumes:
+      - application/json
+      description: Handler for Createting new song
+      parameters:
+      - description: song fields
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http.songCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Song'
+        "400":
+          description: Bad Request
+          schema:
+            type: func
+        "404":
+          description: Not Found
+          schema:
+            type: func
+        "500":
+          description: Internal Server Error
+          schema:
+            type: func
+      summary: Create Song
+      tags:
+      - song
+  /delete:
+    delete:
+      consumes:
+      - application/json
+      description: Handler for Deleting song by id
+      parameters:
+      - description: song id
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http.songDeleteReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: func
+        "404":
+          description: Not Found
+          schema:
+            type: func
+        "500":
+          description: Internal Server Error
+          schema:
+            type: func
+      summary: Delete Song
+      tags:
+      - song
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: Handler for getting Song verses
+      parameters:
+      - description: ATTENTION!!! use date Instead of release_date, default dir is
+          asc
+        in: query
+        name: sort
+        required: true
+        type: string
+      - description: asc or desc
+        in: query
+        name: dir
+        required: true
+        type: string
+      - description: page of songs
+        in: query
+        name: page
+        required: true
+        type: string
+      - description: count of songs
+        in: query
+        name: limit
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.SongResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: func
+        "404":
+          description: Not Found
+          schema:
+            type: func
+        "500":
+          description: Internal Server Error
+          schema:
+            type: func
+      summary: Get filtered Song
+      tags:
+      - song
+  /update:
+    put:
+      consumes:
+      - application/json
+      description: Handler for Updating song by id
+      parameters:
+      - description: all feilds are optional exept id
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http.songUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Song'
+        "400":
+          description: Bad Request
+          schema:
+            type: func
+        "404":
+          description: Not Found
+          schema:
+            type: func
+        "500":
+          description: Internal Server Error
+          schema:
+            type: func
+      summary: Update Song
+      tags:
+      - song
+  /verses:
+    post:
+      consumes:
+      - application/json
+      description: Handler for getting Song verses
+      parameters:
+      - description: group, name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http.paginateSongVersesReq'
+      - description: page of verses
+        in: query
+        name: page
+        required: true
+        type: string
+      - description: count of verses
+        in: query
+        name: limit
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.VerseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: func
+        "404":
+          description: Not Found
+          schema:
+            type: func
+        "500":
+          description: Internal Server Error
+          schema:
+            type: func
+      summary: Get paginated Song verses
+      tags:
+      - song
+swagger: "2.0"
