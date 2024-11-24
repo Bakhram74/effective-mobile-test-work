@@ -1,0 +1,19 @@
+services:
+  app:
+    build: ./
+    container_name: music
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: music-psql
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=songs
+    ports:
+      - "5432:5432"

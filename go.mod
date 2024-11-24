@@ -1,6 +1,6 @@
 module github.com/Bakhram74/effective-mobile-test-work.git
 
-go 1.23.1
+go 1.22.9
 
 require (
 	github.com/google/uuid v1.6.0
