@@ -38,6 +38,7 @@ func (h *Handler) initAPI(router *gin.Engine) {
 		song.PUT("/update", h.updateSong)
 		song.DELETE("/delete", h.deleteSong)
 		song.POST("/verses", h.paginatedVerses)
+		song.GET("/songs", h.filteredSongs)
 	}
 }
 

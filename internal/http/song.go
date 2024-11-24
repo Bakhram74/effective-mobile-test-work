@@ -105,7 +105,12 @@ func (h *Handler) updateSong(ctx *gin.Context) {
 	}
 
 	var updatedSong db.Song
-	_ = json.Unmarshal(patchedJSON, &updatedSong)
+	err = json.Unmarshal(patchedJSON, &updatedSong)
+	if err != nil {
+		ErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		slog.Error(err.Error())
+		return
+	}
 
 	arg := db.UpdateSongParams{
 		ID:          id,
@@ -159,6 +164,7 @@ type paginateSongVersesReq struct {
 	Name  string `json:"name" binding:"required"`
 }
 
+// TODO fix count
 func (h *Handler) paginatedVerses(ctx *gin.Context) {
 
 	var reqBody paginateSongVersesReq
@@ -229,5 +235,62 @@ func (h *Handler) paginatedVerses(ctx *gin.Context) {
 			TotalPage: totalVerses,
 		},
 	}
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (h *Handler) filteredSongs(ctx *gin.Context) {
+	sortValue := ctx.Query("sort")
+	direction := ctx.Query("dir")
+
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil {
+		ErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+	limit, err := strconv.Atoi(ctx.Query("limit"))
+	if err != nil {
+		ErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+	if page <= 0 {
+		page = 1
+	}
+	if limit <= 0 {
+		limit = 5
+	}
+
+	offset := limit * (page - 1)
+
+	args := entity.FilteredSongsParams{
+		Limit:     int32(limit),
+		Offset:    int32(offset),
+		Direction: direction,
+		SortValue: sortValue,
+	}
+
+	count, songs, err := h.service.FilteredSongs(ctx, args)
+	if err != nil {
+		ErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		slog.Error(err.Error())
+		return
+	}
+
+	totalVerses := (int(count) / limit)
+	remainder := (int(count) % limit)
+	if remainder != 0 {
+		totalVerses = totalVerses + 1
+	}
+
+	response := entity.SongResponse{
+		Songs: songs,
+		Pagination: entity.Pagination{
+			Page:      page,
+			Limit:     limit,
+			TotalPage: totalVerses,
+		},
+	}
+
 	ctx.JSON(http.StatusOK, response)
 }

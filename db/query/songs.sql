@@ -52,3 +52,42 @@ FROM (
   WHERE "group" = $1 AND "name" = $2
 ) AS verses
 WHERE verse <> '';
+
+-- name: FilteredSongsAsc :many
+WITH total_count AS (
+  SELECT COUNT(*) AS total
+  FROM songs
+)
+SELECT 
+  songs.*, 
+  total_count.total
+FROM songs, total_count
+ORDER BY 
+  CASE 
+    WHEN $1 = 'name' THEN "name"
+    WHEN $1 = 'group' THEN "group"
+    WHEN $1 = 'text' THEN "text"
+    WHEN $1 = 'link' THEN "link"
+  END ASC
+LIMIT $2 OFFSET $3;
+
+-- name: FilteredSongsDesc :many
+WITH total_count AS (
+  SELECT COUNT(*) AS total
+  FROM songs
+)
+SELECT 
+  songs.*, 
+  total_count.total
+FROM songs, total_count
+ORDER BY 
+  CASE 
+    WHEN $1 = 'name' THEN "name"
+    WHEN $1 = 'group' THEN "group"
+    WHEN $1 = 'text' THEN "text"
+    WHEN $1 = 'link' THEN "link"
+  END DESC
+LIMIT $2 OFFSET $3;
+
+
+

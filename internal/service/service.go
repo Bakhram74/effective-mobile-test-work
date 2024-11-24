@@ -4,6 +4,7 @@ import (
 	"context"
 
 	db "github.com/Bakhram74/effective-mobile-test-work.git/db/sqlc"
+	"github.com/Bakhram74/effective-mobile-test-work.git/internal/service/entity"
 	"github.com/google/uuid"
 )
 
@@ -13,6 +14,7 @@ type Song interface {
 	Get(ctx context.Context, id uuid.UUID) (db.Song, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	SongVerses(ctx context.Context, params db.SongVersesParams) (int64, []db.SongVersesRow, error)
+	FilteredSongs(ctx context.Context, params entity.FilteredSongsParams) (int64,[]db.Song, error)
 }
 
 type Service struct {

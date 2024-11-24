@@ -85,6 +85,132 @@ func (q *Queries) DeleteSong(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const filteredSongsAsc = `-- name: FilteredSongsAsc :many
+WITH total_count AS (
+  SELECT COUNT(*) AS total
+  FROM songs
+)
+SELECT 
+  songs.id, songs."group", songs.name, songs.release_date, songs.text, songs.link, 
+  total_count.total
+FROM songs, total_count
+ORDER BY 
+  CASE 
+    WHEN $1 = 'name' THEN "name"
+    WHEN $1 = 'group' THEN "group"
+    WHEN $1 = 'text' THEN "text"
+    WHEN $1 = 'link' THEN "link"
+  END ASC
+LIMIT $2 OFFSET $3
+`
+
+type FilteredSongsAscParams struct {
+	Column1 interface{} `json:"column_1"`
+	Limit   int32       `json:"limit"`
+	Offset  int32       `json:"offset"`
+}
+
+type FilteredSongsAscRow struct {
+	ID          uuid.UUID `json:"id"`
+	Group       string    `json:"group"`
+	Name        string    `json:"name"`
+	ReleaseDate string    `json:"release_date"`
+	Text        string    `json:"text"`
+	Link        string    `json:"link"`
+	Total       int64     `json:"total"`
+}
+
+func (q *Queries) FilteredSongsAsc(ctx context.Context, arg FilteredSongsAscParams) ([]FilteredSongsAscRow, error) {
+	rows, err := q.db.Query(ctx, filteredSongsAsc, arg.Column1, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FilteredSongsAscRow
+	for rows.Next() {
+		var i FilteredSongsAscRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Group,
+			&i.Name,
+			&i.ReleaseDate,
+			&i.Text,
+			&i.Link,
+			&i.Total,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const filteredSongsDesc = `-- name: FilteredSongsDesc :many
+WITH total_count AS (
+  SELECT COUNT(*) AS total
+  FROM songs
+)
+SELECT 
+  songs.id, songs."group", songs.name, songs.release_date, songs.text, songs.link, 
+  total_count.total
+FROM songs, total_count
+ORDER BY 
+  CASE 
+    WHEN $1 = 'name' THEN "name"
+    WHEN $1 = 'group' THEN "group"
+    WHEN $1 = 'text' THEN "text"
+    WHEN $1 = 'link' THEN "link"
+  END DESC
+LIMIT $2 OFFSET $3
+`
+
+type FilteredSongsDescParams struct {
+	Column1 interface{} `json:"column_1"`
+	Limit   int32       `json:"limit"`
+	Offset  int32       `json:"offset"`
+}
+
+type FilteredSongsDescRow struct {
+	ID          uuid.UUID `json:"id"`
+	Group       string    `json:"group"`
+	Name        string    `json:"name"`
+	ReleaseDate string    `json:"release_date"`
+	Text        string    `json:"text"`
+	Link        string    `json:"link"`
+	Total       int64     `json:"total"`
+}
+
+func (q *Queries) FilteredSongsDesc(ctx context.Context, arg FilteredSongsDescParams) ([]FilteredSongsDescRow, error) {
+	rows, err := q.db.Query(ctx, filteredSongsDesc, arg.Column1, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FilteredSongsDescRow
+	for rows.Next() {
+		var i FilteredSongsDescRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Group,
+			&i.Name,
+			&i.ReleaseDate,
+			&i.Text,
+			&i.Link,
+			&i.Total,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSong = `-- name: GetSong :one
 SELECT id, "group", name, release_date, text, link FROM songs
 WHERE id = $1

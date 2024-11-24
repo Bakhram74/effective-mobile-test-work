@@ -4,6 +4,7 @@ import (
 	"context"
 
 	db "github.com/Bakhram74/effective-mobile-test-work.git/db/sqlc"
+	"github.com/Bakhram74/effective-mobile-test-work.git/internal/service/entity"
 
 	"github.com/google/uuid"
 )
@@ -49,6 +50,57 @@ func (s SongService) SongVerses(ctx context.Context, params db.SongVersesParams)
 	if err != nil {
 		return 0, []db.SongVersesRow{}, err
 	}
-
 	return count, rows, nil
+}
+
+func (s SongService) FilteredSongs(ctx context.Context, params entity.FilteredSongsParams) (int64, []db.Song, error) {
+
+	if params.SortValue == "date" {
+		return 0, nil, nil
+	}
+
+	if params.Direction == "desc" {
+		args := db.FilteredSongsDescParams{
+			Column1: params.SortValue,
+			Limit:   params.Limit,
+			Offset:  params.Offset,
+		}
+		rows, err := s.queries.FilteredSongsDesc(ctx, args)
+		if err != nil {
+			return 0, nil, err
+		}
+		songs := make([]db.Song, len(rows))
+		for i, item := range rows {
+			songs[i].ID = item.ID
+			songs[i].Group = item.Group
+			songs[i].Name = item.Name
+			songs[i].ReleaseDate = item.ReleaseDate
+			songs[i].Text = item.Text
+			songs[i].Link = item.Link
+		}
+		return rows[0].Total, songs, nil
+	}
+
+	args := db.FilteredSongsAscParams{
+		Column1: params.SortValue,
+		Limit:   params.Limit,
+		Offset:  params.Offset,
+	}
+
+	rows, err := s.queries.FilteredSongsAsc(ctx, args)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	songs := make([]db.Song, len(rows))
+	for i, item := range rows {
+		songs[i].ID = item.ID
+		songs[i].Group = item.Group
+		songs[i].Name = item.Name
+		songs[i].ReleaseDate = item.ReleaseDate
+		songs[i].Text = item.Text
+		songs[i].Link = item.Link
+	}
+
+	return rows[0].Total, songs, nil
 }
