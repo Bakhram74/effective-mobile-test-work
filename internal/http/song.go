@@ -166,7 +166,6 @@ type paginateSongVersesReq struct {
 	Name  string `json:"name" binding:"required"`
 }
 
-// TODO fix count
 func (h *Handler) paginatedVerses(ctx *gin.Context) {
 
 	var reqBody paginateSongVersesReq

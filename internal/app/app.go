@@ -25,9 +25,9 @@ func Run(config *config.Config) {
 		panic(fmt.Sprintf("Migration error: %s", err.Error()))
 	}
 
-	queries := db.New(pool)
+	store := db.NewStore(pool)
 
-	service := service.NewService(queries)
+	service := service.NewService(store)
 
 	handler := http.NewHandler(config, service).Init()
 

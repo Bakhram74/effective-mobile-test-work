@@ -13,47 +13,33 @@ import (
 )
 
 type SongService struct {
-	queries *db.Queries
+	store db.Store
 }
 
-func NewSongService(queries *db.Queries) *SongService {
+func NewSongService(store db.Store) *SongService {
 	return &SongService{
-		queries: queries,
+		store: store,
 	}
 }
 
 func (s SongService) Create(ctx context.Context, params db.CreateSongParams) (db.Song, error) {
-	return s.queries.CreateSong(ctx, params)
+	return s.store.CreateSong(ctx, params)
 }
 
 func (s SongService) Get(ctx context.Context, id uuid.UUID) (db.Song, error) {
-	return s.queries.GetSong(ctx, id)
+	return s.store.GetSong(ctx, id)
 }
 
 func (s SongService) Update(ctx context.Context, params db.UpdateSongParams) (db.Song, error) {
-	return s.queries.UpdateSong(ctx, params)
+	return s.store.UpdateSong(ctx, params)
 }
 
 func (s SongService) Delete(ctx context.Context, id uuid.UUID) error {
-	return s.queries.DeleteSong(ctx, id)
+	return s.store.DeleteSong(ctx, id)
 }
 
 func (s SongService) SongVerses(ctx context.Context, params db.SongVersesParams) (int64, []db.SongVersesRow, error) {
-	args := db.CountSongVersesParams{
-		Group: params.Group,
-		Name:  params.Name,
-	}
-
-	count, err := s.queries.CountSongVerses(ctx, args)
-	if err != nil {
-		return 0, []db.SongVersesRow{}, err
-	}
-
-	rows, err := s.queries.SongVerses(ctx, params)
-	if err != nil {
-		return 0, []db.SongVersesRow{}, err
-	}
-	return count, rows, nil
+	return s.store.SongVersesTX(ctx, params)
 }
 
 func (s SongService) FilteredSongs(ctx context.Context, params entity.FilteredSongsParams) (int64, []db.Song, error) {
@@ -72,7 +58,7 @@ func (s SongService) FilteredSongs(ctx context.Context, params entity.FilteredSo
 			Limit:   params.Limit,
 			Offset:  params.Offset,
 		}
-		rows, err := s.queries.FilteredSongsDesc(ctx, args)
+		rows, err := s.store.FilteredSongsDesc(ctx, args)
 		if err != nil {
 			return 0, nil, err
 		}
@@ -94,7 +80,7 @@ func (s SongService) FilteredSongs(ctx context.Context, params entity.FilteredSo
 		Offset:  params.Offset,
 	}
 
-	rows, err := s.queries.FilteredSongsAsc(ctx, args)
+	rows, err := s.store.FilteredSongsAsc(ctx, args)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -114,7 +100,7 @@ func (s SongService) FilteredSongs(ctx context.Context, params entity.FilteredSo
 
 func (s SongService) sortByDate(ctx context.Context, params entity.FilteredSongsParams) (int64, []db.Song, error) {
 
-	songs, err := s.queries.GetAllSong(ctx)
+	songs, err := s.store.GetAllSong(ctx)
 	if err != nil {
 		return 0, nil, err
 	}
