@@ -39,7 +39,7 @@ FROM (
   FROM songs
   WHERE songs."group" = $1 AND songs."name" = $2
 ) AS verses
-WHERE verses.verse <> '' -- Filter out empty lines
+WHERE verses.verse <> ''
 LIMIT $3 OFFSET $4;
 
 -- name: CountSongVerses :one
@@ -89,5 +89,5 @@ ORDER BY
   END DESC
 LIMIT $2 OFFSET $3;
 
-
-
+-- name: GetAllSong :many
+SELECT * FROM songs;

@@ -211,6 +211,37 @@ func (q *Queries) FilteredSongsDesc(ctx context.Context, arg FilteredSongsDescPa
 	return items, nil
 }
 
+const getAllSong = `-- name: GetAllSong :many
+SELECT id, "group", name, release_date, text, link FROM songs
+`
+
+func (q *Queries) GetAllSong(ctx context.Context) ([]Song, error) {
+	rows, err := q.db.Query(ctx, getAllSong)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Song
+	for rows.Next() {
+		var i Song
+		if err := rows.Scan(
+			&i.ID,
+			&i.Group,
+			&i.Name,
+			&i.ReleaseDate,
+			&i.Text,
+			&i.Link,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSong = `-- name: GetSong :one
 SELECT id, "group", name, release_date, text, link FROM songs
 WHERE id = $1
@@ -241,7 +272,7 @@ FROM (
   FROM songs
   WHERE songs."group" = $1 AND songs."name" = $2
 ) AS verses
-WHERE verses.verse <> '' -- Filter out empty lines
+WHERE verses.verse <> ''
 LIMIT $3 OFFSET $4
 `
 

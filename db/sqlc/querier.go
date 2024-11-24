@@ -16,6 +16,7 @@ type Querier interface {
 	DeleteSong(ctx context.Context, id uuid.UUID) error
 	FilteredSongsAsc(ctx context.Context, arg FilteredSongsAscParams) ([]FilteredSongsAscRow, error)
 	FilteredSongsDesc(ctx context.Context, arg FilteredSongsDescParams) ([]FilteredSongsDescRow, error)
+	GetAllSong(ctx context.Context) ([]Song, error)
 	GetSong(ctx context.Context, id uuid.UUID) (Song, error)
 	SongVerses(ctx context.Context, arg SongVersesParams) ([]SongVersesRow, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)

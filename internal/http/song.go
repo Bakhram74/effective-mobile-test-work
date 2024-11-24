@@ -3,9 +3,11 @@ package http
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 
 	db "github.com/Bakhram74/effective-mobile-test-work.git/db/sqlc"
 	"github.com/Bakhram74/effective-mobile-test-work.git/internal/service/entity"
@@ -231,7 +233,7 @@ func (h *Handler) paginatedVerses(ctx *gin.Context) {
 		Verse: verses,
 		Pagination: entity.Pagination{
 			Page:      page,
-			Limit:     limit,
+			Count:     count,
 			TotalPage: totalVerses,
 		},
 	}
@@ -262,12 +264,12 @@ func (h *Handler) filteredSongs(ctx *gin.Context) {
 	}
 
 	offset := limit * (page - 1)
-
+	fmt.Println(limit, "  ", offset)
 	args := entity.FilteredSongsParams{
 		Limit:     int32(limit),
 		Offset:    int32(offset),
-		Direction: direction,
-		SortValue: sortValue,
+		Direction: strings.ToLower(direction),
+		SortValue: strings.ToLower(sortValue),
 	}
 
 	count, songs, err := h.service.FilteredSongs(ctx, args)
@@ -287,7 +289,7 @@ func (h *Handler) filteredSongs(ctx *gin.Context) {
 		Songs: songs,
 		Pagination: entity.Pagination{
 			Page:      page,
-			Limit:     limit,
+			Count:     count,
 			TotalPage: totalVerses,
 		},
 	}

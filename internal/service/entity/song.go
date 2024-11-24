@@ -3,9 +3,9 @@ package entity
 import db "github.com/Bakhram74/effective-mobile-test-work.git/db/sqlc"
 
 type Pagination struct {
-	Page      int `json:"page"`
-	Limit     int `json:"limit"`
-	TotalPage int `json:"total_page"`
+	Page      int   `json:"page"`
+	Count     int64 `json:"total_count"`
+	TotalPage int   `json:"total_page"`
 }
 
 type VerseResponse struct {
@@ -14,7 +14,6 @@ type VerseResponse struct {
 	Verse      []string `json:"verse"`
 	Pagination `json:"pagination"`
 }
-
 
 type SongResponse struct {
 	Songs      []db.Song
